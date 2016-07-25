@@ -3,8 +3,6 @@ var Notify = require( 'osg/Notify' );
 var shaderLib = require( 'osgShader/shaderLib' );
 var shadowShaderLib = require( 'osgShadow/shaderLib' );
 var WebGLCaps = require( 'osg/WebGLCaps' );
-var optimizer = require( 'osgShader/optimizer' );
-var preProcessor = require( 'osgShader/preProcessor' );
 
 //     Shader as vert/frag/glsl files Using requirejs text plugin
 //     Preprocess features like:    //
@@ -39,7 +37,6 @@ ShaderProcessor.prototype = {
     _includeCondR: /#pragma include (["^+"]?["\ "[a-zA-Z_0-9](.*)"]*?)/g,
     _defineR: /\#define\s+([a-zA-Z_0-9]+)/,
     _precisionR: /precision\s+(high|low|medium)p\s+float/,
-
 
     // {
     //     'functions.glsl': textShaderFunctions,
@@ -222,32 +219,6 @@ ShaderProcessor.prototype = {
             prePrend += defines.join( '\n' ) + '\n';
         }
         postShader = prePrend + postShader;
-
-
-        if ( defines === undefined ) {
-            defines = [];
-        }
-
-        if ( this._precisionFloat ) defines.push( '#define GL_FRAGMENT_PRECISION_HIGH' );
-        defines = defines.map( function ( defineString ) {
-            // find '#define', remove duplicate whitespace, split on space and return the define Text
-            return this._defineR.test( defineString ) && defineString.replace( /\s+/g, ' ' ).split( ' ' )[ 1 ];
-        }.bind( this ) );
-
-        var osgShader = require( 'osgShader/osgShader' );
-        if ( osgShader.enableShaderOptimizer ) {
-            Notify.info( 'shader before optimization\n' + postShader );
-            console.time( 'shaderPreprocess' );
-            var preprocessedShader = preProcessor( postShader, defines, extensions );
-            postShader = preprocessedShader;
-            console.timeEnd( 'shaderPreprocess' );
-
-            console.time( 'shaderOptimize' );
-            var optShader = optimizer( postShader, defines, extensions );
-            postShader = optShader;
-            console.timeEnd( 'shaderOptimize' );
-            Notify.info( 'shader after optimization\n' + postShader );
-        }
 
         return postShader;
     }

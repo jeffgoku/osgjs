@@ -1672,10 +1672,6 @@ Compiler.prototype = {
 
         // Call to specialised inhenrited shader Compiler
         var roots = this.createVertexShaderGraph();
-        var vname = this.getVertexShaderName();
-        if ( vname )
-            roots.push( this.getNode( 'Define', 'SHADER_NAME' ).setValue( vname ) );
-
         // call the graph compiler itself
         var shader = this.createShaderFromGraphs( roots, 'vertex' );
 
@@ -1725,9 +1721,6 @@ Compiler.prototype = {
 
         // Call to specialised inhenrited shader Compiler
         var roots = this.createFragmentShaderGraph();
-        var fname = this.getFragmentShaderName();
-        if ( fname )
-            roots.push( this.getNode( 'Define', 'SHADER_NAME' ).setValue( fname ) );
 
         var shader = this.createShaderFromGraphs( roots, 'fragment' );
         Notify.debug( shader );

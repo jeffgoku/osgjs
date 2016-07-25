@@ -1,11 +1,36 @@
 'use strict';
 
-// remove fat code (undefined)
-// TODO: comments, unused functions)
-var preProcessor = function ( source, definesInput /*, extensionsInput */ ) {
+// Regex once and for all
+// to avoid multiple compilation
+// of the same regex 
 
-    var inputsDefines = definesInput && definesInput.slice( 0 );
-    //    var inputsExtension = extensionsInput && extensionsInput.slice( 0 );
+// multiple Conditions
+var definedReg = /(?:\s)(!defined|defined)\s?\(\s?(\w+)\)?\s?|(&&)|(\|\|)/gi;
+//var ifReg = /#if defined(.+)/gi;
+//var elifReg = /#elif defined(.+)/gi;
+
+// change of context
+var defineReg = /#define\s(\w+)$|#define\s(\w+)\s(\S+)|#define\s(\w+)\(\w+\)(.+)/i;
+var undefReg = /#undef (.+)/i;
+
+// clean ears;
+var ccComent = /\/\/(.+)/i;
+//
+var extensionReg = /#extension\s(\w+)\s:\s(\w+)/i;
+
+// regex to extract error message and line from webgl compiler reporting
+// one condition
+var ifdefReg = /#ifdef\s(.+)/i;
+var elseReg = /#else/i;
+var endifReg = /#endif/i;
+var ifndefReg = /#ifndef\s(.+)/i;
+
+
+
+// remove unProcessed Code.
+var preProcessor = function ( source ) {
+
+    var inputsDefines = [];
 
     // what we'll do
     var pruneComment = false;
@@ -20,26 +45,6 @@ var preProcessor = function ( source, definesInput /*, extensionsInput */ ) {
     var linesLength = lines.length;
     if ( linesLength === 0 ) return source;
 
-    // regex to extract error message and line from webgl compiler reporting
-    // one condition
-    var ifdefReg = /#ifdef\s(.+)/i;
-    var elseReg = /#else/i;
-    var endifReg = /#endif/i;
-    var ifndefReg = /#ifndef\s(.+)/i;
-
-    // multipleCondition
-    var definedReg = /(?:\s)(!defined|defined)\s?\(\s?(\w+)\)?\s?|(&&)|(\|\|)/gi;
-    //var ifReg = /#if defined(.+)/gi;
-    //var elifReg = /#elif defined(.+)/gi;
-
-    // change of context
-    var defineReg = /#define\s(\w+)$|#define\s(\w+)\s(\S+)|#define\s(\w+)\(\w+\)(.+)/i;
-    var undefReg = /#undef (.+)/i;
-
-    // clean ears;
-    var ccComent = /\/\/(.+)/i;
-    //
-    var extensionReg = /#extension\s(\w+)\s:\s(\w+)/i;
     // state var
     var foundIfDef, index, results;
 
